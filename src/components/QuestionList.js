@@ -1,54 +1,46 @@
-import React, { useState, useEffect  } from "react";
-import QuestionItem from "./QuestionItem.js";
-
+import React,{ useState, useEffect } from "react";
+import QuestionItem from "./QuestionItem";
 
 function QuestionList() {
-  const [questions, setQuestions] = useState([]);
-  // const [myId, setMyId] = useState('')
-  
-  useEffect(() => {
+  let [questions ,setQuestions] = useState([])
+
+  useEffect(()=>{
     fetch("http://localhost:4000/questions")
     .then(res => res.json())
-    .then(res => {
-      setQuestions(res);
-      // setIsest(true);
-    });
-  }, [])
-
-
-
-  // const toFilterDelete = questions.filter(que => {
-  //   if(myId === ''){
-  //     return true
-  //   } else {
-  //     return myId !== que.id
-  //   }
-  // })
-  function handleDeleteClick(id){
-    // setMyId(id)
-    fetch(`http://localhost:4000/questions/${id}`, {
-      method : "DELETE"
+    .then(data => {
+      setQuestions(data)
     })
-    .then(res => res.json())
+  },[])
 
-    fetch("http://localhost:4000/questions")
-    .then(res => res.json())
-    .then(res => {
-      setQuestions(res);
-      // setIsest(true);
-    });
+  function handleDeleteQuestion(deletedQuestion){
+    const updatedQuestions = questions.filter((question) => question.id !== deletedQuestion.id);
+    setQuestions(updatedQuestions);
   }
 
-  const questionItem = questions.map(quest => (
-    <QuestionItem question = { quest } onDelete = { handleDeleteClick }/>
-  ))
-  console.log(questions)
+  function handleUpdateQuestion(updatedAnswer){
+    const updatedQuestions = questions.map((question)=>{
+      if(question.id === updatedAnswer.id){
+        return updatedAnswer
+      }else{
+        return question
+      }
+    });
+    setQuestions(updatedQuestions);
+  }
+
+  const questionLi = questions.map((question)=>{
+    return <QuestionItem 
+    key={question.id} 
+    question={question}
+    onDeleteQuestion={handleDeleteQuestion}
+    onUpdateQuestion={handleUpdateQuestion}
+     />
+  })
+
   return (
     <section>
       <h1>Quiz Questions</h1>
-      <ul>
-        {questionItem}
-      </ul>
+      <ul>{questionLi}</ul>
     </section>
   );
 }
